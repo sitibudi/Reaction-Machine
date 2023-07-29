@@ -15,7 +15,6 @@ unsigned long interval;  // Interval perpindahan tombol dalam milidetik (3 detik
 unsigned long startTime = 0;  // Waktu mulai latihan
 unsigned long elapsedTime = 0;  // Waktu yang telah berlalu sejak latihan dimulai
 unsigned long detik,menit,milidetik;
-
 int benar,salah;
 
 bool flag = false;
@@ -24,8 +23,8 @@ bool level1_state = false;
 bool level2_state = false;
 
 
-int benarButtons[numButtons]; // Array untuk menyimpan nomor tombol yang ditekan dengan benar
-unsigned long benarTimes[numButtons]; // Array untuk menyimpan waktu tombol ditekan dengan benar
+int benarButtons[100]; // Array untuk menyimpan nomor tombol yang ditekan dengan benar
+unsigned long benarTimes[100]; // Array untuk menyimpan waktu tombol ditekan dengan benar
 // unsigned long benarTimes[numButtons]; // Array untuk menyimpan waktu tombol ditekan dengan benar
 
 int angkaMuncul[8] = {1, 2, 3, 4, 5, 6, 7,8};
@@ -75,7 +74,6 @@ void resetArray() {
 }
 
 
-
 void playBuzzer() {
   unsigned long buzzerStartTime = millis();
   while (millis() - buzzerStartTime < 3000) {
@@ -122,24 +120,23 @@ void loop() {
 
   // cek tombol level 1
   if (!isTrainingStarted && digitalRead(level1) == LOW && level1_state ==false) {  // Memeriksa apakah tombol start ditekan untuk memulai latihan
-  digitalWrite(idle_led, LOW);
-     digitalWrite(level1_led,HIGH);
-    //  playBuzzer();
-    startTraining();  // Memulai latihan jika tombol level1 ditekan
-    
-    interval = 1500;
-    level2_state = true;
+      digitalWrite(idle_led, LOW);
+      digitalWrite(level1_led,HIGH);
+      playBuzzer();
+      startTraining();  // Memulai latihan jika tombol level1 ditekan
+      interval = 1500;
+      level2_state = true;
   }
 
 
   // cek tombol level 2
   if (!isTrainingStarted && digitalRead(level2) == LOW && level2_state ==false) {  // Memeriksa apakah tombol start ditekan untuk memulai latihan
-  digitalWrite(idle_led, LOW);
-    digitalWrite(level2_led,HIGH);
-    playBuzzer();
-    startTraining();  // Memulai latihan jika tombol level2 ditekan
-    interval = 700;
-    level1_state = true;
+      digitalWrite(idle_led, LOW);
+      digitalWrite(level2_led,HIGH);
+      playBuzzer();
+      startTraining();  // Memulai latihan jika tombol level2 ditekan
+      interval = 700;
+      level1_state = true;
   }
   
   if (isTrainingStarted) {
@@ -174,10 +171,7 @@ void loop() {
         milidetik = buttonTime % 1000;
         // Menampilkan waktu tombol ditekan di Serial Monitor
         Serial.print("O");Serial.print(",");
-        // Serial.print(currentButton + 1);
         Serial.print(menit);Serial.print(":");Serial.print(detik);Serial.print(":");Serial.print(milidetik);Serial.print(",");Serial.print("Tombol:");Serial.println(i+1);
-        // Serial.print(" ditekan pada waktu: ");
-        // Serial.println(buttonTime);
         benar++;
         digitalWrite(ledPins[currentButton], LOW);  // Mematikan LED pada tombol yang telah ditekan
         currentButton = -1;  // Menandakan tidak ada tombol yang aktif
@@ -188,7 +182,7 @@ void loop() {
       }
     }
     
-    if (elapsedTime >= 30000) {  // Jika waktu latihan mencapai 60 detik, latihan selesai
+    if (elapsedTime >= 60000) {  // Jika waktu latihan mencapai 60 detik, latihan selesai
       isTrainingStarted = false;
       digitalWrite(idle_led, HIGH);
       digitalWrite(level1_led,LOW);
@@ -198,14 +192,14 @@ void loop() {
       level1_state = false;
       level2_state = false;
       Serial.print("HASIL:");Serial.print(",");Serial.print("Tombol O:"); Serial.print(benar);Serial.print(",");Serial.print("Tombol X:");Serial.println(salah);
-      Serial.println("Tombol nomor berapa saja yang ditekan dengan benar dan waktu saat ditekan:");
+      Serial.println("RESULT O BUTTON");
       for (int i = 1; i <= benar; i++) {
-        Serial.print("Tombol nomor ");
+        Serial.print("Tombol:");
         Serial.print(benarButtons[i]);
         menit = (benarTimes[i] / 1000) / 60;
         detik = (benarTimes[i]/ 1000) % 60;
         milidetik = benarTimes[i] % 1000;
-        Serial.print(" ditekan pada waktu: ");
+        Serial.print(",");
         // Serial.println(benarTimes[i]);
         Serial.print(menit);Serial.print(":");Serial.print(detik);Serial.print(":");Serial.println(milidetik);
       }
